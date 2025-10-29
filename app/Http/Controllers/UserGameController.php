@@ -27,7 +27,7 @@ public function game()
     }
 
     // Guardar el juego vinculado al usuario
-  public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
         'game_id' => 'required|exists:games,id',
@@ -37,30 +37,17 @@ public function game()
 
     $game = Game::find($request->game_id);
 
-    // Asignar imagen por título
-    $imageMap = [
-        'Zelda' => 'img/games/zelda.jpg',
-        'Final Fantasy' => 'img/games/finalfantasy.jpg',
-        'Pokemon' => 'img/games/pokemon.jpg',
-        'Mario' => 'img/games/mario.jpg',
-    ];
-
-    $defaultImage = 'img/games/default.jpg';
-
-    $matchedImage = collect($imageMap)->first(function ($url, $key) use ($game) {
-        return str_contains(strtolower($game->title), strtolower($key));
-    }) ?? $defaultImage;
-
     UserGame::create([
         'user_id' => auth()->id(),
         'game_id' => $game->id,
         'progress' => $request->progress,
         'comment' => $request->comment,
-        'screenshot_url' => $matchedImage,
+        'screenshot_url' => $game->cover_url, // 👈 Aquí se copia directamente la imagen
     ]);
 
     return redirect()->route('profile.edit')->with('success', 'Juego añadido con imagen');
 }
+
 
 
     // Mostrar formulario para editar progreso o comentario
@@ -96,6 +83,6 @@ public function game()
         $userGame = UserGame::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         $userGame->delete();
 
-        return redirect()->route('user-games.index')->with('success', 'Juego eliminado de tu perfil.');
+        return redirect()->route('profile.edit')->with('success', 'Juego eliminado de tu perfil.');
     }
 }
