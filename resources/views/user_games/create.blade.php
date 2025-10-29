@@ -16,12 +16,6 @@
                 <label for="progress" class="block text-sm font-medium text-gray-700">Progreso (%)</label>
                 <input type="number" name="progress" id="progress" min="0" max="100" value="0" class="w-full px-3 py-2 border rounded">
             </div>
-
-            <div class="mb-4">
-                <label for="screenshot_url" class="block text-sm font-medium text-gray-700">URL de captura</label>
-                <input type="url" name="screenshot_url" id="screenshot_url" class="w-full px-3 py-2 border rounded">
-            </div>
-
             <div class="mb-4">
                 <label for="comment" class="block text-sm font-medium text-gray-700">Comentario</label>
                 <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 border rounded"></textarea>

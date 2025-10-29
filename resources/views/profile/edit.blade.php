@@ -32,6 +32,7 @@
                     <p>Comentario: {{ $userGame->comment }}</p>
                     @if ($userGame->screenshot_url)
                         <img src="{{ $userGame->screenshot_url }}" class="w-full h-48 object-cover mt-2">
+
                     @endif
                     <div class="flex justify-end space-x-4 mt-4">
         <a href="{{ route('user-games.edit', $userGame->id) }}"

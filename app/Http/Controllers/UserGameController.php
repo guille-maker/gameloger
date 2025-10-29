@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\UserGame;
@@ -28,25 +27,41 @@ public function game()
     }
 
     // Guardar el juego vinculado al usuario
-    public function store(Request $request)
-    {
-        $request->validate([
-            'game_id' => 'required|exists:games,id',
-            'progress' => 'nullable|integer|min:0|max:100',
-            'screenshot_url' => 'nullable|url',
-            'comment' => 'nullable|string|max:1000',
-        ]);
+  public function store(Request $request)
+{
+    $request->validate([
+        'game_id' => 'required|exists:games,id',
+        'progress' => 'nullable|integer',
+        'comment' => 'nullable|string',
+    ]);
 
-        UserGame::create([
-            'user_id' => Auth::id(),
-            'game_id' => $request->game_id,
-            'progress' => $request->progress,
-            'screenshot_url' => $request->screenshot_url,
-            'comment' => $request->comment,
-        ]);
+    $game = Game::find($request->game_id);
 
-        return redirect()->route('user-games.index')->with('success', 'Juego añadido a tu perfil.');
-    }
+    // Asignar imagen por título
+    $imageMap = [
+        'Zelda' => 'img/games/zelda.jpg',
+        'Final Fantasy' => 'img/games/finalfantasy.jpg',
+        'Pokemon' => 'img/games/pokemon.jpg',
+        'Mario' => 'img/games/mario.jpg',
+    ];
+
+    $defaultImage = 'img/games/default.jpg';
+
+    $matchedImage = collect($imageMap)->first(function ($url, $key) use ($game) {
+        return str_contains(strtolower($game->title), strtolower($key));
+    }) ?? $defaultImage;
+
+    UserGame::create([
+        'user_id' => auth()->id(),
+        'game_id' => $game->id,
+        'progress' => $request->progress,
+        'comment' => $request->comment,
+        'screenshot_url' => $matchedImage,
+    ]);
+
+    return redirect()->route('profile.edit')->with('success', 'Juego añadido con imagen');
+}
+
 
     // Mostrar formulario para editar progreso o comentario
    public function edit($id)
