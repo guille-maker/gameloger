@@ -1,0 +1,8 @@
+/* resources/css/themes.css */
+.theme-day {
+  @apply bg-aegis text-bluehour;
+}
+
+.theme-night {
+  @apply bg-midnight text-spirit;
+}
