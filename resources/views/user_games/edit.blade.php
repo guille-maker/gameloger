@@ -3,8 +3,10 @@
         <h2 class="text-2xl font-bold text-white">👤 Mi perfil</h2>
     </x-slot>
 
+    {{-- Alpine.js control para pestañas y edición --}}
     <div x-data="{ tab: 'juegos', editId: null }" class="p-6">
-        <!-- Pestañas -->
+
+        {{-- Pestañas --}}
         <div class="flex space-x-4 border-b mb-6">
             <button @click="tab = 'juegos'"
                 :class="tab === 'juegos' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'"
@@ -18,7 +20,7 @@
             </button>
         </div>
 
-        <!-- Contenido de pestañas -->
+        {{-- Contenido de pestañas --}}
         <div x-show="tab === 'juegos'" x-cloak>
             <a href="{{ route('user-games.create') }}"
                 class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition mb-4 inline-block">
@@ -34,9 +36,11 @@
                         <img src="{{ $userGame->screenshot_url }}" class="w-full h-48 object-cover mt-2">
                     @endif
 
-                    <!-- Botones -->
+                    {{-- Botones --}}
                     <div class="flex justify-end space-x-4 mt-4">
-                        <button @click="editId = {{ $userGame->id }}" class="text-blue-600 hover:underline">✏️ Editar</button>
+                        <button type="button" @click="editId = {{ $userGame->id }}" class="text-blue-600 hover:underline">
+                            ✏️ Editar
+                        </button>
 
                         <form action="{{ route('user-games.destroy', $userGame->id) }}" method="POST"
                               onsubmit="return confirm('¿Eliminar este juego de tu perfil?')">
@@ -46,7 +50,7 @@
                         </form>
                     </div>
 
-                    <!-- Formulario inline -->
+                    {{-- Formulario inline --}}
                     <div x-show="editId === {{ $userGame->id }}" x-cloak class="mt-4">
                         <form method="POST" action="{{ route('user-games.update', $userGame->id) }}">
                             @csrf
@@ -85,6 +89,7 @@
             @endforeach
         </div>
 
+        {{-- Configuración --}}
         <div x-show="tab === 'config'" x-cloak>
             @include('profile.partials.update-profile-information-form')
             @include('profile.partials.update-password-form')
