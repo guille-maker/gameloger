@@ -28,27 +28,30 @@ class UserGameController extends Controller
     {
         $request->validate([
             'game_id' => 'required|exists:games,id',
-            'comment' => 'nullable|string',
-            'hours_played' => 'nullable|integer',
+            'hours_played' => 'nullable|integer|min:0',
+            'difficulty' => 'nullable|string|max:255',
+            'progress' => 'nullable|integer|min:0|max:100',
             'completed' => 'nullable|boolean',
-            'difficulty' => 'nullable|string',
             'started_at' => 'nullable|date',
-            'finished_at' => 'nullable|date',
+            'finished_at' => 'nullable|date|after_or_equal:started_at',
+            'comment' => 'nullable|string',
         ]);
 
         $game = Game::findOrFail($request->game_id);
 
         UserGame::create([
-            'user_id' => auth()->id(),
-            'game_id' => $game->id,
-            'comment' => $request->comment,
-            'screenshot_url' => $game->cover_url,
-            'hours_played' => $request->hours_played,
-            'completed' => $request->completed,
-            'difficulty' => $request->difficulty,
-            'started_at' => $request->started_at,
-            'finished_at' => $request->finished_at,
-        ]);
+    'user_id' => auth()->id(),
+    'game_id' => $game->id,
+    'comment' => $request->comment,
+    'screenshot_url' => $game->cover_url,
+    'hours_played' => $request->hours_played,
+    'difficulty' => $request->difficulty,
+    'progress' => $request->progress,
+    'completed' => $request->completed ?? false,
+    'started_at' => now(), // 👈 se guarda automáticamente la fecha actual
+    'finished_at' => null, // opcional, se deja vacío
+]);
+
 
         return redirect()->route('profile.edit')->with('success', 'Juego añadido con éxito');
     }
@@ -57,10 +60,10 @@ class UserGameController extends Controller
     public function edit($id)
     {
         $userGame = UserGame::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-       return view('user_games.edit', [
-    'userGame' => $userGame,
-    'user' => Auth::user(), // 👈 esto soluciona el error
-]);
+        return view('user_games.edit', [
+            'userGame' => $userGame,
+            'user' => Auth::user(), // 👈 esto soluciona el error
+        ]);
 
     }
 
