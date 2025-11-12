@@ -1,0 +1,72 @@
+# ===========================
+# Tipos base
+# ===========================
+
+type Query {
+  me: User! @auth
+  games: [Game!]! @all
+  game(id: ID!): Game @find
+}
+
+type Mutation {
+  createGame(title: String!, genre: String): Game! @create
+  updateGame(id: ID!, title: String, genre: String): Game! @update
+  deleteGame(id: ID!): Game! @delete
+}
+
+# ===========================
+# Tipos personalizados
+# ===========================
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  games: [Game!]! @belongsToMany(relation: "games")
+}
+
+
+type Game {
+  id: ID!
+  title: String!
+  genre: String
+  status: String!
+  cover_url: String
+  users: [User!]! @belongsToMany(relation: "users")
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+
+
+# ===========================
+# Escalares y directivas
+# ===========================
+
+scalar DateTime
+
+# ===========================
+# Inputs personalizados (opcional)
+# ===========================
+
+input CreateGameInput {
+  title: String!
+  genre: String
+}
+
+input UpdateGameInput {
+  id: ID!
+  title: String
+  genre: String
+}
+
+
+type Mutation {
+  login(email: String!, password: String!): AuthPayload
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+

@@ -9,13 +9,20 @@ class UserGame extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'game_id',
-        'progress',
-        'screenshot_url',
-        'comment',
-    ];
+protected $fillable = [
+    'user_id',
+    'game_id',
+    'progress',
+    'screenshot_url',
+    'comment',
+    'hours_played',
+    'completed',
+    'difficulty',
+    'started_at',
+    'finished_at',
+];
+
+
 
     public function user()
     {

@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -45,15 +46,18 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function users()
-{
-    return $this->belongsToMany(User::class, 'user_games')
-                ->withPivot('progress', 'comment', 'screenshot_url')
-                ->withTimestamps();
-}
+   
 public function userGames()
 {
     return $this->hasMany(UserGame::class);
 }
+
+public function games()
+{
+    return $this->belongsToMany(Game::class, 'user_games')
+                ->withPivot('progress', 'comment', 'screenshot_url', 'status', 'hours_played', 'started_at')
+                ->withTimestamps();
+}
+
 
 }

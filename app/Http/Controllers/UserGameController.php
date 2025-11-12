@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Game;
 use App\Models\UserGame;
@@ -14,10 +15,6 @@ class UserGameController extends Controller
         $userGames = Auth::user()->userGames()->with('game')->latest()->get();
         return view('user_games.index', compact('userGames'));
     }
-public function game()
-{
-    return $this->belongsTo(Game::class);
-}
 
     // Mostrar formulario para añadir un juego al perfil
     public function create()
@@ -27,35 +24,49 @@ public function game()
     }
 
     // Guardar el juego vinculado al usuario
-public function store(Request $request)
-{
-    $request->validate([
-        'game_id' => 'required|exists:games,id',
-        'progress' => 'nullable|integer',
-        'comment' => 'nullable|string',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'game_id' => 'required|exists:games,id',
+            'hours_played' => 'nullable|integer|min:0',
+            'difficulty' => 'nullable|string|max:255',
+            'progress' => 'nullable|integer|min:0|max:100',
+            'completed' => 'nullable|boolean',
+            'started_at' => 'nullable|date',
+            'finished_at' => 'nullable|date|after_or_equal:started_at',
+            'comment' => 'nullable|string',
+        ]);
 
-    $game = Game::find($request->game_id);
+        $game = Game::findOrFail($request->game_id);
 
-    UserGame::create([
-        'user_id' => auth()->id(),
-        'game_id' => $game->id,
-        'progress' => $request->progress,
-        'comment' => $request->comment,
-        'screenshot_url' => $game->cover_url, // 👈 Aquí se copia directamente la imagen
-    ]);
+        UserGame::create([
+    'user_id' => auth()->id(),
+    'game_id' => $game->id,
+    'comment' => $request->comment,
+    'screenshot_url' => $game->cover_url,
+    'hours_played' => $request->hours_played,
+    'difficulty' => $request->difficulty,
+    'progress' => $request->progress,
+    'completed' => $request->completed ?? false,
+    'started_at' => now(), // 👈 se guarda automáticamente la fecha actual
+    'finished_at' => null, // opcional, se deja vacío
+]);
 
-    return redirect()->route('profile.edit')->with('success', 'Juego añadido con imagen');
-}
 
+        return redirect()->route('profile.edit')->with('success', 'Juego añadido con éxito');
+    }
 
+    // Mostrar formulario para editar un juego del perfil
+    public function edit($id)
+    {
+        $userGame = UserGame::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        return view('user_games.edit', [
+            'userGame' => $userGame,
+            'user' => Auth::user(), // 👈 esto soluciona el error
+        ]);
 
-    // Mostrar formulario para editar progreso o comentario
-   public function edit($id)
-{
-    $userGame = UserGame::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-    return response()->json($userGame);
-}
+    }
+
 
     // Actualizar los datos del juego vinculado
     public function update(Request $request, $id)
@@ -63,18 +74,25 @@ public function store(Request $request)
         $userGame = UserGame::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
         $request->validate([
-            'progress' => 'required|integer|min:0|max:100',
             'screenshot_url' => 'nullable|url',
             'comment' => 'nullable|string|max:1000',
+            'hours_played' => 'nullable|integer',
+            'completed' => 'nullable|boolean',
+            'difficulty' => 'nullable|string',
+            'started_at' => 'nullable|date',
+            'finished_at' => 'nullable|date',
         ]);
 
         $userGame->update([
-            'progress' => $request->progress,
-            'screenshot_url' => $request->screenshot_url,
             'comment' => $request->comment,
+            'hours_played' => $request->hours_played,
+            'completed' => $request->completed,
+            'difficulty' => $request->difficulty,
+            'started_at' => $request->started_at,
+            'finished_at' => $request->finished_at,
         ]);
 
-        return redirect()->route('user-games.index')->with('success', 'Juego actualizado.');
+        return redirect()->route('profile.edit')->with('success', 'Juego actualizado.');
     }
 
     // Eliminar el juego del perfil

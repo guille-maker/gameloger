@@ -1,3 +1,32 @@
+<script>
+const token = "2|gay8NAUehqRbcfI7taDKZzGEPWhGQIDO0QB0URDta2681bd7";
+
+fetch("/graphql", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "Authorization": "Bearer " + token
+  },
+  body: JSON.stringify({
+    query: `query {
+      me {
+        id
+        name
+        games {
+          title
+          status
+          cover_url
+        }
+      }
+    }`
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data));
+</script>
+
+
 <x-app-layout>
     <x-slot name="header">
         <h2 :class="theme === 'night' ? 'text-spirit border-shadow' : 'text-black border-bluehour'"
@@ -63,68 +92,101 @@
         </div>
 
         <!-- 🎮 Panel lateral de juegos activos -->
-        <aside :class="theme === 'night'
-            ? '-midnight border border-phantom shadow-md hover:shadow-[0_0_10px_#E60012]'
-            : 'bg-aegis border border-bluehour shadow-md hover:shadow-[0_0_10px_#3F5AA6]'"
-            class="w-full lg:w-1/4 p-6 rounded-xl space-y-6 transition">
-            <h3 :class="theme === 'night' ? 'text-spirit border-shadow' : 'text-black border-bluehour'"
-                class="border-b pb-2 flex items-center gap-2 uppercase tracking-wide">
-                <span>🔥</span> Juegos en progreso
-            </h3>
+<aside :class="theme === 'night'
+    ? '-midnight border border-phantom shadow-md hover:shadow-[0_0_10px_#E60012]'
+    : 'bg-aegis border border-bluehour shadow-md hover:shadow-[0_0_10px_#3F5AA6]'"
+    class="w-full lg:w-1/4 p-6 rounded-xl space-y-6 transition">
+    <h3 class="text-lg font-bold mb-2">🎮 Tus juegos</h3>
 
-            <div class="space-y-5">
-                <!-- Juego 1 -->
-                <div class="flex items-center gap-4 group">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/3/32/Hollow_Knight_cover.jpg"
-                         alt="Hollow Knight"
-                         class="w-14 h-14 rounded-lg shadow-sm group-hover:shadow-[0_0_10px_#E60012] transition">
-                    <div>
-                        <p :class="theme === 'night' ? 'text-spirit' : 'text-black'"
-                           class="font-semibold group-hover:text-phantom transition">Hollow Knight</p>
-                        <div :class="theme === 'night' ? '-urban' : 'bg-bluehour'" class="w-32 rounded-full h-2 mt-1">
-                            <div :class="theme === 'night' ? '-phantom' : 'bg-velvet'" class="h-2 rounded-full" style="width: 65%"></div>
-                        </div>
-                        <p class="text-sm mt-1">
-                            Estado: <span :class="theme === 'night' ? 'text-spirit' : 'text-black'">En progreso</span>
-                        </p>
-                    </div>
+@if($games->isEmpty())
+    <p class="text-gray-500">No tienes juegos guardados aún.</p>
+@else
+    <ul class="space-y-4">
+        @foreach($games as $game)
+            <li class="flex items-center gap-4">
+                <img src="{{ $game->cover_url ?? '/img/default-cover.jpg' }}"
+                     alt="{{ $game->title }}"
+                     class="w-14 h-14 rounded shadow">
+                <div>
+                    <p class="font-semibold">{{ $game->title }}</p>
+                    <p class="text-sm">Estado: {{ ucfirst($game->status) }}</p>
+                    @if($game->pivot)
+                        <p class="text-sm">Progreso: {{ $game->pivot->progress ?? 'N/A' }}</p>
+                        <p class="text-sm">Comentario: {{ $game->pivot->comment ?? 'Sin comentario' }}</p>
+                    @endif
                 </div>
+            </li>
+        @endforeach
+    </ul>
+@endif
 
-                <!-- Juego 2 -->
-                <div class="flex items-center gap-4 group">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/3/3d/Persona_5_cover_art.jpg"
-                         alt="Persona 5 Royal"
-                         class="w-14 h-14 rounded-lg shadow-sm group-hover:shadow-[0_0_10px_#E60012] transition">
-                    <div>
-                        <p :class="theme === 'night' ? 'text-spirit' : 'text-black'"
-                           class="font-semibold group-hover:text-phantom transition">Persona 5 Royal</p>
-                        <div :class="theme === 'night' ? '-urban' : 'bg-bluehour'" class="w-32 rounded-full h-2 mt-1">
-                            <div :class="theme === 'night' ? '-shadow' : 'bg-velvet'" class="h-2 rounded-full" style="width: 40%"></div>
-                        </div>
-                        <p class="text-sm mt-1">
-                            Estado: <span :class="theme === 'night' ? 'text-spirit' : 'text-black'">Rejugando</span>
-                        </p>
-                    </div>
-                </div>
+</aside>
 
-                <!-- Juego 3 -->
-                <div class="flex items-center gap-4 group">
-                    <img src="https://upload.wikimedia.org/wikipedia/en/9/9c/Metroid_Dread_cover_art.jpg"
-                         alt="Metroid Dread"
-                         class="w-14 h-14 rounded-lg shadow-sm group-hover:shadow-[0_0_10px_#E60012] transition">
-                    <div>
-                        <p :class="theme === 'night' ? 'text-spirit' : 'text-black'"
-                           class="font-semibold group-hover:text-phantom transition">Metroid Dread</p>
-                        <div :class="theme === 'night' ? '-urban' : 'bg-bluehour'" class="w-32 rounded-full h-2 mt-1">
-                            <div :class="theme === 'night' ? '-phantom' : 'bg-velvet'" class="h-2 rounded-full" style="width: 80%"></div>
-                        </div>
-                        <p class="text-sm mt-1">
-                            Estado: <span :class="theme === 'night' ? 'text-spirit' : 'text-black'">Completado</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </aside>
 
     </div>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      query: `query {
+        me {
+          games {
+            id
+            title
+            status
+            cover_url
+          }
+        }
+      }`
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("juegos-activos");
+    container.innerHTML = "";
+
+    const juegos = data.data.me.games.filter(juego =>
+      ["empezado", "en curso", "rejugando"].includes(juego.status)
+    );
+
+    if (juegos.length === 0) {
+      container.innerHTML = "<p class='text-gray-500'>No estás jugando ningún juego actualmente.</p>";
+      return;
+    }
+
+    juegos.forEach(juego => {
+      const estado = juego.status.charAt(0).toUpperCase() + juego.status.slice(1);
+      const progreso = {
+        "empezado": "20%",
+        "en curso": "50%",
+        "rejugando": "40%",
+        "completado": "100%"
+      }[juego.status] || "30%";
+
+      const html = `
+        <div class="flex items-center gap-4 group">
+          <img src="${juego.cover_url || '/img/default-cover.jpg'}"
+               alt="${juego.title}"
+               class="w-14 h-14 rounded-lg shadow-sm group-hover:shadow-[0_0_10px_#E60012] transition">
+          <div>
+            <p class="font-semibold group-hover:text-phantom transition">${juego.title}</p>
+            <div class="w-32 rounded-full h-2 mt-1 bg-bluehour">
+              <div class="h-2 rounded-full bg-velvet" style="width: ${progreso}"></div>
+            </div>
+            <p class="text-sm mt-1">Estado: <span>${estado}</span></p>
+          </div>
+        </div>
+      `;
+      container.innerHTML += html;
+    });
+  });
+});
+</script>
+
 </x-app-layout>

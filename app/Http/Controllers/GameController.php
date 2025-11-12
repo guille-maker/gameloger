@@ -1,4 +1,17 @@
 <?php
+/**
+ * @OA\Info(
+ *     title="GameLoger API",
+ *     version="1.0",
+ *     description="Documentación de la API de GameLoger"
+ * )
+ *
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Servidor local"
+ * )
+ */
+
 namespace App\Http\Controllers;
 
 use App\Models\Game;
@@ -8,7 +21,17 @@ use Illuminate\Support\Str;
 
 class GameController extends Controller
 {
-
+/**
+ * @OA\Get(
+ *     path="/api/games",
+ *     summary="Obtener todos los juegos",
+ *     tags={"Games"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Lista de juegos"
+ *     )
+ * )
+ */
 public function index(Request $request)
 {
     $query = Game::query();
