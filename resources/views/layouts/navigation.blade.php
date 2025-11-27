@@ -12,18 +12,28 @@
          <!-- Enlaces centrados -->
          <div class="flex-1 flex justify-center">
             <div class="hidden sm:flex gap-8 text-lg font-semibold">
-               <a href="{{ route('home') }}" :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'"
-                  class="transition">Inicio</a>
-               <a href="{{ route('profile.edit') }}"
-                  :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" class="transition">Perfil</a>
-               <a href="{{ route('profile.edit') }}"
-                  :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" class="transition">Mis juegos</a>
-               <a href="{{ route('games.index') }}"
-                  :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" class="transition">Listado juegos</a>
-               <a href="{{ route('posts.index') }}"
-                  :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" class="transition">Posts</a>
-                  
-            </div>
+                <a href="{{ route('home') }}" 
+      :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" 
+      class="transition">Inicio</a>
+
+   <!-- Perfil personal -->
+   <a href="{{ route('profile.edit') }}" 
+      :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" 
+      class="transition">Perfil</a>
+
+   <!-- Mis juegos -->
+   <a href="{{ route('user-games.index') }}" 
+      :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" 
+      class="transition">Mis juegos</a>
+
+   <a href="{{ route('games.index') }}" 
+      :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" 
+      class="transition">Listado juegos</a>
+
+   <a href="{{ route('posts.index') }}" 
+      :class="theme === 'night' ? 'hover:text-phantom' : 'hover:text-velvet'" 
+      class="transition">Posts</a>
+</div>
          </div>
 
          <!-- Icono de usuario a la derecha -->

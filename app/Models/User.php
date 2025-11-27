@@ -59,5 +59,12 @@ public function games()
                 ->withTimestamps();
 }
 
+// app/Models/User.php
+
+public function friends()
+{
+    return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id');
+}
+
 
 }
