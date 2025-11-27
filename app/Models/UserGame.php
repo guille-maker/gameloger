@@ -20,7 +20,9 @@ protected $fillable = [
     'difficulty',
     'started_at',
     'finished_at',
+    'status',
 ];
+
 
 
 

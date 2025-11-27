@@ -14,12 +14,13 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
-    {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
+   public function edit()
+{
+    $user = Auth::user(); // 👈 añade el usuario autenticado
+    $userGames = $user->userGames()->with('game')->get();
+
+    return view('profile.edit', compact('user', 'userGames'));
+}
 
     /**
      * Update the user's profile information.

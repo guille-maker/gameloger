@@ -1,94 +1,92 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-2xl font-bold text-white">👤 Mi perfil</h2>
+        <h2 class="text-2xl font-bold text-white uppercase tracking-widest">🎮 Mi perfil</h2>
     </x-slot>
 
-    <div x-data="{ tab: 'juegos', editId: null }" class="p-6">
-        <!-- Pestañas -->
-        <div class="flex space-x-4 border-b mb-6">
-            <button @click="tab = 'juegos'"
-                :class="tab === 'juegos' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'"
-                class="pb-2 font-semibold">
-                🎮 Mis Juegos
-            </button>
-            <button @click="tab = 'config'"
-                :class="tab === 'config' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'"
-                class="pb-2 font-semibold">
-                ⚙️ Configuración
-            </button>
+    <div class="max-w-4xl mx-auto mt-6 space-y-8">
+
+        {{-- Bloque de perfil personal --}}
+        <div class="-midnight p-6 rounded-xl border-2 border-phantom shadow-md flex items-center gap-6">
+            {{-- Foto de perfil --}}
+            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('img/default-avatar.png') }}"
+                 alt="Avatar"
+                 class="w-24 h-24 rounded-full border-2 border-phantom object-cover shadow">
+
+            {{-- Información personal --}}
+            <div class="flex-1">
+                <h3 class="text-xl font-bold text-spirit uppercase tracking-wide">
+                    {{ Auth::user()->name }}
+                </h3>
+                <p class="text-sm text-shadow italic mt-2">
+                    {{ Auth::user()->description ?? 'Sin biografía aún...' }}
+                </p>
+            </div>
+
+            {{-- Botón para editar perfil --}}
+            <a href="{{ route('profile.edit') }}"
+   class="px-4 py-2 -phantom text-white rounded hover:shadow-[0_0_5px_#E60012] transition">
+   ✏️ Editar perfil
+</a>
+
         </div>
 
-        <!-- Contenido de pestañas -->
-        <div x-show="tab === 'juegos'" x-cloak>
-            <a href="{{ route('user-games.create') }}"
-                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition mb-4 inline-block">
-                ➕ Añadir juego a mi perfil
-            </a>
-
-            @foreach (auth()->user()->userGames as $userGame)
-                <div class="bg-white p-4 rounded shadow mb-4 text-black">
-                    <h3 class="text-lg font-bold">{{ $userGame->game->title }}</h3>
-                    <p>Plataforma: {{ $userGame->game->platform }}</p>
-                    <p>Comentario: {{ $userGame->comment }}</p>
-                    @if ($userGame->screenshot_url)
-                        <img src="{{ $userGame->screenshot_url }}" class="w-full h-48 object-cover mt-2">
-                    @endif
-
-                    <!-- Botones -->
-                    <div class="flex justify-end space-x-4 mt-4">
-                        <button @click="editId = {{ $userGame->id }}" class="text-blue-600 hover:underline">✏️ Editar</button>
-
-                        <form action="{{ route('user-games.destroy', $userGame->id) }}" method="POST"
-                              onsubmit="return confirm('¿Eliminar este juego de tu perfil?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
-                        </form>
-                    </div>
-
-                    <!-- Formulario inline -->
-                    <div x-show="editId === {{ $userGame->id }}" x-cloak class="mt-4">
-                        <form method="POST" action="{{ route('user-games.update', $userGame->id) }}">
-                            @csrf
-                            @method('PUT')
-
-                            <textarea name="comment" class="w-full border rounded p-2">{{ $userGame->comment }}</textarea>
-
-                            <input type="number" name="hours_played" value="{{ $userGame->hours_played }}"
-                                   class="w-full border rounded p-2 mt-2" placeholder="Horas jugadas">
-
-                            <input type="text" name="difficulty" value="{{ $userGame->difficulty }}"
-                                   class="w-full border rounded p-2 mt-2" placeholder="Dificultad">
-
-                            <select name="completed" class="w-full border rounded p-2 mt-2">
-                                <option value="0" @selected(!$userGame->completed)>No completado</option>
-                                <option value="1" @selected($userGame->completed)>Completado</option>
-                            </select>
-
-                            <input type="date" name="started_at" value="{{ $userGame->started_at }}"
-                                   class="w-full border rounded p-2 mt-2">
-
-                            <input type="date" name="finished_at" value="{{ $userGame->finished_at }}"
-                                   class="w-full border rounded p-2 mt-2">
-
-                            <div class="flex justify-end space-x-2 mt-4">
-                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                                    Guardar
-                                </button>
-                                <button type="button" @click="editId = null" class="text-gray-600 hover:underline">
-                                    Cancelar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        {{-- Lista de juegos --}}
+        <div class="space-y-4">
+            @foreach ($userGames as $userGame)
+                <x-game-card :userGame="$userGame" />
             @endforeach
         </div>
+    </div>
 
-        <div x-show="tab === 'config'" x-cloak>
-            @include('profile.partials.update-profile-information-form')
-            @include('profile.partials.update-password-form')
-            @include('profile.partials.delete-user-form')
+    <!-- Modal de edición de juegos -->
+    <div id="editModal" class="fixed inset-0 -black -opacity-80 flex items-center justify-center hidden z-50">
+        <div class="-midnight p-6 rounded-xl border-2 border-phantom shadow-lg max-w-md w-full text-spirit">
+            <h2 class="text-xl font-bold mb-4 text-phantom uppercase tracking-wide">Editar juego</h2>
+            <form method="POST" action="" id="editForm">
+                @csrf
+                @method('PUT')
+
+                <input type="hidden" name="game_id" id="edit_game_id">
+
+                <div class="mb-4">
+                    <label for="edit_progress" class="block text-sm font-medium text-spirit">Progreso (%)</label>
+                    <input type="number" name="progress" id="edit_progress" min="0" max="100"
+                           class="w-full px-3 py-2 border border-phantom rounded -urban text-spirit">
+                </div>
+
+                <div class="mb-4">
+                    <label for="edit_screenshot_url" class="block text-sm font-medium text-spirit">URL de captura</label>
+                    <input type="url" name="screenshot_url" id="edit_screenshot_url"
+                           class="w-full px-3 py-2 border border-phantom rounded -urban text-spirit">
+                </div>
+
+                <div class="mb-4">
+                    <label for="edit_comment" class="block text-sm font-medium text-spirit">Comentario</label>
+                    <textarea name="comment" id="edit_comment" rows="4"
+                              class="w-full px-3 py-2 border border-phantom rounded -urban text-spirit"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 -shadow text-white rounded hover:shadow-[0_0_5px_#B00010] transition">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 -phantom text-white rounded hover:shadow-[0_0_5px_#E60012] transition">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
+
+    <!-- Script para controlar el modal -->
+    <script>
+        function openEditModal(userGame) {
+            document.getElementById('edit_game_id').value = userGame.game_id;
+            document.getElementById('edit_progress').value = userGame.progress;
+            document.getElementById('edit_screenshot_url').value = userGame.screenshot_url || '';
+            document.getElementById('edit_comment').value = userGame.comment || '';
+            document.getElementById('editForm').action = `/user-games/${userGame.id}`;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+    </script>
 </x-app-layout>
